@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import EntrantTable from "./EntrantTable";
 
 export default function Dashboard() {
-  const [apiKey, setApiKey] = useState("");
   const [eventSlug, setEventSlug] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -16,23 +15,17 @@ export default function Dashboard() {
   const [searchFilter, setSearchFilter] = useState("");
   const [totalCount, setTotalCount] = useState(0);
 
-  useEffect(() => {
-    const saved = localStorage.getItem('startgg_api_key');
-    if (saved) setApiKey(saved);
-  }, []);
-
   const handleFetch = async () => {
-    if (!apiKey || !eventSlug) return;
+    if (!eventSlug) return;
     
     setLoading(true);
     setError(null);
-    localStorage.setItem('startgg_api_key', apiKey);
 
     try {
       const resData = await fetch('/api/fetchEntrants', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ apiKey, eventSlug })
+        body: JSON.stringify({ eventSlug })
       });
 
       const json = await resData.json();
@@ -98,16 +91,7 @@ export default function Dashboard() {
       <p style={{ color: 'var(--text-dim)', marginBottom: '2rem' }}>Sync Start.gg entrants to the SQLite payment database seamlessly.</p>
       
       <div className="glass-panel">
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
-          <div>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600 }}>Start.gg API Key</label>
-            <input 
-              type="password" 
-              value={apiKey} 
-              onChange={e => setApiKey(e.target.value)} 
-              placeholder="Paste developer token here..."
-            />
-          </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
           <div>
             <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600 }}>Event URL or Slug</label>
             <input 
@@ -118,7 +102,7 @@ export default function Dashboard() {
             />
           </div>
         </div>
-        <button onClick={handleFetch} disabled={loading || !apiKey || !eventSlug}>
+        <button onClick={handleFetch} disabled={loading || !eventSlug}>
           {loading ? 'Fetching...' : 'Load Entrants ->'}
         </button>
 

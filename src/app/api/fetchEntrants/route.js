@@ -3,10 +3,15 @@ import { fetchEventEntrants } from '@/lib/startgg';
 
 export async function POST(request) {
   try {
-    const { apiKey, eventSlug } = await request.json();
+    const { eventSlug } = await request.json();
+    const apiKey = process.env.STARTGG_API_KEY;
 
-    if (!apiKey || !eventSlug) {
-      return NextResponse.json({ error: 'Missing apiKey or eventSlug' }, { status: 400 });
+    if (!apiKey) {
+      return NextResponse.json({ error: 'Missing STARTGG_API_KEY environment variable. Please configure it in .env' }, { status: 500 });
+    }
+
+    if (!eventSlug) {
+      return NextResponse.json({ error: 'Missing eventSlug' }, { status: 400 });
     }
 
     const eventData = await fetchEventEntrants(apiKey, eventSlug, 1, 500);
